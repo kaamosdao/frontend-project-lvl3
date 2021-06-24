@@ -1,4 +1,4 @@
-## **RSS aggregator**
+# **RSS aggregator**
 
 [![Actions Status](https://github.com/kaamosdao/frontend-project-lvl3/workflows/hexlet-check/badge.svg)](https://github.com/kaamosdao/frontend-project-lvl3/actions)
 [![Maintainability](https://api.codeclimate.com/v1/badges/d970a861ccc4f583fb3a/maintainability)](https://codeclimate.com/github/kaamosdao/frontend-project-lvl3/maintainability)
@@ -11,13 +11,13 @@ This package will help you to read RSS easily.
 
 #
 
-### Setup:
+## Setup:
 
 ```
 make install
 ```
 
-### Run:
+## Run:
 
 ```
 make serve
