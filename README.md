@@ -1,18 +1,22 @@
 ## **RSS aggregator**
 
+#### RSS is a web feed that allows users and applications to access updates to websites in a standardized, computer-readable format. These feeds can, for example, allow a user to keep track of many different websites in a single news aggregator.
+
+#### [(c)](https://en.wikipedia.org/wiki/RSS)
+
+#### This package will help you to read RSS easily.
+
 #
 
-RSS is a web feed that allows users and applications to access updates to websites in a standardized, computer-readable format. These feeds can, for example, allow a user to keep track of many different websites in a single news aggregator.
-[(c)](https://en.wikipedia.org/wiki/RSS)
-
-This package will help you to read RSS easily.
-
-#
-
-### Package installation:
+### Setup:
 
 ```
 make install
+```
+### Run:
+
+```
+make serve
 ```
 
 ### Hexlet tests and linter status:
