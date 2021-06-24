@@ -1,0 +1,39 @@
+{
+  "name": "@hexlet/code",
+  "version": "1.0.0",
+  "description": "RSS aggregator",
+  "main": "src/index.js",
+  "scripts": {
+    "test": "npx jest",
+    "dev": "cross-env NODE_ENV=development webpack --mode development",
+    "build": "cross-env NODE_ENV=production webpack --mode production",
+    "start": "cross-env NODE_ENV=development webpack serve --mode development --open"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kaamosdao/frontend-project-lvl3.git"
+  },
+  "author": "Alexander Demidov",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/kaamosdao/frontend-project-lvl3/issues"
+  },
+  "homepage": "https://github.com/kaamosdao/frontend-project-lvl3#readme",
+  "devDependencies": {
+    "clean-webpack-plugin": "^4.0.0-alpha.0",
+    "cross-env": "^7.0.3",
+    "css-loader": "^5.2.6",
+    "eslint": "^7.29.0",
+    "eslint-config-airbnb-base": "^14.2.1",
+    "eslint-plugin-import": "^2.23.4",
+    "html-webpack-plugin": "^5.3.2",
+    "style-loader": "^2.0.0",
+    "webpack": "^5.40.0",
+    "webpack-cli": "^4.7.2",
+    "webpack-dev-server": "^3.11.2"
+  },
+  "dependencies": {
+    "@popperjs/core": "^2.9.2",
+    "bootstrap": "^5.0.2"
+  }
+}
