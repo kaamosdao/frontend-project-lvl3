@@ -82,12 +82,10 @@ class RssUrl {
 
   getRequest() {
     if (this.valid) {
+      watchedState.processState = 'sending';
+      watchedState.feedback = feedbackMessages.default;
       axios.get(`https://hexlet-allorigins.herokuapp.com/get?url=${encodeURIComponent(this.url)}`)
-        .then((response) => {
-          watchedState.processState = 'sending';
-          watchedState.feedback = feedbackMessages.default;
-          return response.data.contents;
-        })
+        .then((response) => response.data.contents)
         .then((rss) => rssParser(rss))
         .then((rssDocument) => generateStateContent(rssDocument))
         .catch(() => {
