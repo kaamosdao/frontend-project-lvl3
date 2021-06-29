@@ -9,8 +9,7 @@ RSS is a web feed that allows users and applications to access updates to websit
 
 This package will help you to read RSS easily.
 
-[Click to see an example.](https://rss-reader-ruddy.vercel.app/)
-
+<a href="https://rss-reader-ruddy.vercel.app/" target="_blank">Click here to see an example.</a>
 #
 
 ## Setup:
