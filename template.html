@@ -8,47 +8,62 @@
   </head>
   <body class="d-flex flex-column vh-100">
     <main role="main">
-      <section class="container-fluid bg-dark bg-gradient text-white p-5">
+      <section
+        class="
+          form-container
+          container-fluid
+          bg-dark bg-gradient
+          text-white
+          p-5
+        "
+      >
         <div class="row">
           <div class="col-md-10 col-lg-8 mx-auto">
             <h1 class="display-3">RSS Reader</h1>
             <p class="lead">
               Start reading RSS today. It's beautiful and nothing hurt!
             </p>
-                <form>
-                  <div class="row">
-                    <div class="col form-floating">
-                      <input
-                        type="url"
-                        class="form-control text-muted"
-                        aria-label="url-help"
-                        id="input-url"
-                        placeholder="type a RSS URL"
-                      />
-                      <label for="input-url" class="text-muted mx-3"
-                        >type a RSS URL</label
-                      >
-                    </div>
-                    <div class="col-auto">
-                      <button
-                        type="submit"
-                        aria-label="add"
-                        class="btn btn-primary bg-gradient px-5 h-100"
-                      >
-                        Add
-                      </button>
-                    </div>
-                  </div>
-                </form>
-                <p id="url-help" class="text-muted mt-2">
-                  Example: https://ru.hexlet.io/lessons.rss
-                </p>
+            <form>
+              <div class="row">
+                <div class="col form-floating">
+                  <input
+                    type="url"
+                    class="form-control text-muted"
+                    aria-label="url-help"
+                    id="input-url"
+                    placeholder="type a RSS URL"
+                    autofocus
+                    required
+                    name="url"
+                  />
+                  <label for="input-url" class="text-muted mx-3"
+                    >type a RSS URL</label
+                  >
+                </div>
+                <div class="col-auto">
+                  <button
+                    type="submit"
+                    aria-label="add"
+                    class="btn btn-primary bg-gradient px-5 h-100"
+                  >
+                    Add
+                  </button>
+                </div>
+              </div>
+            </form>
+            <p id="url-help" class="text-muted mt-2">
+              Example: https://ru.hexlet.io/lessons.rss
+            </p>
+            <p class="feedback m-0 position-absolute small text-danger"></p>
           </div>
         </div>
       </section>
-      <section class="container-fluid p-5">
+      <section class="content-container container-fluid p-5">
         <div class="row">
-          <div class="col m-auto feeds"></div>
+          <div class="col-md-10 col-lg-4 order-0 order-lg-1 mx-auto feeds"></div>
+          <div
+            class="col-md-10 col-lg-8 mx-auto order-1 order-lg-0 m-auto posts"
+          ></div>
         </div>
       </section>
     </main>
