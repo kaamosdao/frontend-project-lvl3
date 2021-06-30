@@ -51,7 +51,7 @@ const feedsHandler = (value) => {
     pEl.textContent = feed.description;
     liEl.append(h3El);
     liEl.append(pEl);
-    ulEl.append(liEl);
+    ulEl.prepend(liEl);
   });
 };
 
@@ -72,7 +72,7 @@ const postsHandler = (value) => {
     aEl.setAttribute('target', '_blank');
     aEl.textContent = feed.title;
     liEl.append(aEl);
-    ulEl.append(liEl);
+    ulEl.prepend(liEl);
   });
 };
 

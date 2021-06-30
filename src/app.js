@@ -14,9 +14,30 @@ const feedbackMessages = {
 };
 
 const parser = new DOMParser();
-const rssParser = (rss) => parser.parseFromString(rss, 'application/xml');
-const generateStateContent = (rssDocument) => {
+const rssParser = (rss) => {
+  const rssDocument = parser.parseFromString(rss, 'application/xml');
   if (rssDocument.querySelector('rss') === null) {
+    return [null, null];
+  }
+  const feed = {
+    url: watchedState.url,
+    title: rssDocument.querySelector('channel > title').textContent,
+    description: rssDocument.querySelector('channel > description').textContent,
+  };
+  const posts = [];
+  [...rssDocument.querySelectorAll('item')].reverse().forEach((item) => {
+    posts.push({
+      title: item.querySelector('title').textContent,
+      link: item.querySelector('link').textContent,
+      description: item.querySelector('description').textContent,
+    });
+  });
+  return [feed, posts];
+};
+
+const generateStateContent = (rssData) => {
+  const [feed, posts] = rssData;
+  if (feed === null && posts === null) {
     watchedState.processState = 'failed';
     watchedState.valid = false;
     watchedState.feedback = feedbackMessages.errors.rssNotValid;
@@ -26,22 +47,20 @@ const generateStateContent = (rssDocument) => {
 
     watchedState.content.feeds.push({
       id: watchedState.content.feedsCounter,
-      url: watchedState.url,
-      title: rssDocument.querySelector('channel > title').textContent,
-      description: rssDocument.querySelector('channel > description').textContent,
+      url: feed.url,
+      title: feed.title,
+      description: feed.description,
     });
-    const posts = [];
 
-    rssDocument.querySelectorAll('item').forEach((item) => {
-      posts.push({
+    posts.forEach((item) => {
+      watchedState.content.posts.push({
         id: watchedState.content.posts.length + 1,
         feedId: watchedState.content.feedsCounter,
-        title: item.querySelector('title').textContent,
-        link: item.querySelector('link').textContent,
-        description: item.querySelector('description').textContent,
+        title: item.title,
+        link: item.link,
+        description: item.description,
       });
     });
-    watchedState.content.posts.push(...posts);
     watchedState.processState = 'finished';
     watchedState.feedback = feedbackMessages.loaded;
   }
