@@ -1,17 +1,8 @@
 import * as yup from 'yup';
 import axios from 'axios';
+import i18next from 'i18next';
 import watchedState from './view';
-
-const feedbackMessages = {
-  default: '',
-  loaded: 'RSS feed has successfully loaded!',
-  errors: {
-    network: 'Network Problems. Try again.',
-    rssNotValid: 'URL does not contain a valid RSS feed',
-    rssExist: 'RSS has already existed',
-    url: 'url must be a valid URL',
-  },
-};
+import resources from './locales';
 
 const parser = new DOMParser();
 const rssParser = (rss) => {
@@ -40,7 +31,7 @@ const generateStateContent = (rssData) => {
   if (feed === null && posts === null) {
     watchedState.processState = 'failed';
     watchedState.valid = false;
-    watchedState.feedback = feedbackMessages.errors.rssNotValid;
+    watchedState.feedback = 'feedbackMessages.errors.rssNotValid';
   } else {
     watchedState.valid = true;
     watchedState.content.feedsCounter += 1;
@@ -62,7 +53,7 @@ const generateStateContent = (rssData) => {
       });
     });
     watchedState.processState = 'finished';
-    watchedState.feedback = feedbackMessages.loaded;
+    watchedState.feedback = 'feedbackMessages.loaded';
   }
 };
 
@@ -82,7 +73,7 @@ class RssUrl {
       return new RssUrl(this.url, true);
     }
     watchedState.valid = false;
-    watchedState.feedback = feedbackMessages.errors.url;
+    watchedState.feedback = 'feedbackMessages.errors.url';
     return new RssUrl(this.url, false);
   }
 
@@ -93,7 +84,7 @@ class RssUrl {
     const sameUrls = watchedState.content.feeds.filter((feed) => feed.url === this.url);
     if (sameUrls.length !== 0) {
       watchedState.valid = false;
-      watchedState.feedback = feedbackMessages.errors.rssExist;
+      watchedState.feedback = 'feedbackMessages.errors.rssExist';
       return new RssUrl(this.url, false);
     }
     return new RssUrl(this.url, true);
@@ -102,7 +93,7 @@ class RssUrl {
   getRequest() {
     if (this.valid) {
       watchedState.processState = 'sending';
-      watchedState.feedback = feedbackMessages.default;
+      watchedState.feedback = 'feedbackMessages.default';
       axios.get(`https://hexlet-allorigins.herokuapp.com/get?url=${encodeURIComponent(this.url)}`)
         .then((response) => response.data.contents)
         .then((rss) => rssParser(rss))
@@ -110,13 +101,18 @@ class RssUrl {
         .catch(() => {
           watchedState.processState = 'failed';
           watchedState.valid = false;
-          watchedState.feedback = feedbackMessages.errors.network;
+          watchedState.feedback = 'feedbackMessages.errors.network';
         });
     }
   }
 }
 
 export default () => {
+  i18next.init({
+    lng: 'en', // if you're using a language detector, do not define the lng option
+    debug: true,
+    resources,
+  });
   const form = document.querySelector('form');
 
   form.addEventListener('submit', (e) => {

@@ -1,4 +1,5 @@
 import onChange from 'on-change';
+import i18next from 'i18next';
 
 const feedbackContainer = document.querySelector('.feedback');
 const submitButton = document.querySelector('button');
@@ -35,7 +36,7 @@ const createCardEl = (contentName) => {
 const feedsHandler = (value) => {
   const feedsEl = document.querySelector('.feeds');
   if (feedsEl.querySelector('.card') === null) {
-    const cardEl = createCardEl('Feeds');
+    const cardEl = createCardEl(i18next.t('feeds'));
     feedsEl.append(cardEl);
   }
   const ulEl = feedsEl.querySelector('ul');
@@ -58,7 +59,7 @@ const feedsHandler = (value) => {
 const postsHandler = (value) => {
   const postsEl = document.querySelector('.posts');
   if (postsEl.querySelector('.card') === null) {
-    const cardEl = createCardEl('Posts');
+    const cardEl = createCardEl(i18next.t('posts'));
     postsEl.append(cardEl);
   }
   const ulEl = postsEl.querySelector('ul');
@@ -122,7 +123,7 @@ const watchedState = onChange(state, (path, value) => {
       validStateHandler(value);
       break;
     case 'feedback':
-      feedbackContainer.textContent = value;
+      feedbackContainer.textContent = i18next.t(value);
       break;
     case 'content.feeds':
       feedsHandler(value);
