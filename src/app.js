@@ -133,7 +133,6 @@ class RssUrl {
                 acc.push(feed.url);
                 return acc;
               }, []);
-              console.log('urls', urls);
               const promises = urls.map((url) => axios.get(`https://hexlet-allorigins.herokuapp.com/get?disableCache=true&url=${encodeURIComponent(url)}`)
                 .then((response) => response.data.contents)
                 .then((rss) => rssParser(rss))
