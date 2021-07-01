@@ -57,51 +57,96 @@ const generateStateContent = (rssData) => {
   }
 };
 
+const updateStateContent = (rssData) => {
+  const [feed, posts] = rssData;
+  const feedID = watchedState.content.feeds
+    .filter((item) => item.title === feed.title)
+    .reduce((_acc, item) => item.id, 0);
+  const isNewPost = (item) => {
+    const equalPosts = watchedState.content.posts.filter((post) => post.title === item.title);
+    return equalPosts.length === 0;
+  };
+  posts.forEach((item) => {
+    if (isNewPost(item)) {
+      watchedState.content.posts.push({
+        id: watchedState.content.posts.length + 1,
+        feedId: feedID,
+        title: item.title,
+        link: item.link,
+        description: item.description,
+      });
+    }
+  });
+};
+
 const schema = yup.object().shape({
   url: yup.string().url(),
 });
 
 class RssUrl {
-  constructor(url, validState = null) {
+  constructor(url, validState = null, state) {
     this.valid = validState;
     this.url = url;
+    this.watchedState = state;
   }
 
   validateName() {
     if (schema.isValidSync({ url: this.url })) {
-      watchedState.valid = true;
-      return new RssUrl(this.url, true);
+      this.watchedState.valid = true;
+      return new RssUrl(this.url, true, this.watchedState);
     }
-    watchedState.valid = false;
-    watchedState.feedback = 'feedbackMessages.errors.url';
-    return new RssUrl(this.url, false);
+    this.watchedState.valid = false;
+    this.watchedState.feedback = 'feedbackMessages.errors.url';
+    return new RssUrl(this.url, false, this.watchedState);
   }
 
   validateExistense() {
     if (this.valid === false) {
-      return new RssUrl(this.url, false);
+      return new RssUrl(this.url, false, this.watchedState);
     }
-    const sameUrls = watchedState.content.feeds.filter((feed) => feed.url === this.url);
+    const sameUrls = this.watchedState.content.feeds.filter((feed) => feed.url === this.url);
     if (sameUrls.length !== 0) {
-      watchedState.valid = false;
-      watchedState.feedback = 'feedbackMessages.errors.rssExist';
-      return new RssUrl(this.url, false);
+      this.watchedState.valid = false;
+      this.watchedState.feedback = 'feedbackMessages.errors.rssExist';
+      return new RssUrl(this.url, false, this.watchedState);
     }
-    return new RssUrl(this.url, true);
+    return new RssUrl(this.url, true, this.watchedState);
   }
 
   getRequest() {
     if (this.valid) {
-      watchedState.processState = 'sending';
-      watchedState.feedback = 'feedbackMessages.default';
-      axios.get(`https://hexlet-allorigins.herokuapp.com/get?url=${encodeURIComponent(this.url)}`)
+      this.watchedState.processState = 'sending';
+      this.watchedState.feedback = 'feedbackMessages.default';
+      axios.get(`https://hexlet-allorigins.herokuapp.com/get?disableCache=true&url=${encodeURIComponent(this.url)}`)
         .then((response) => response.data.contents)
         .then((rss) => rssParser(rss))
         .then((rssDocument) => generateStateContent(rssDocument))
         .catch(() => {
-          watchedState.processState = 'failed';
-          watchedState.valid = false;
-          watchedState.feedback = 'feedbackMessages.errors.network';
+          this.watchedState.processState = 'failed';
+          this.watchedState.valid = false;
+          this.watchedState.feedback = 'feedbackMessages.errors.network';
+        })
+        .then(() => {
+          const setTimeout = () => {
+            const delayedUpdate = () => {
+              const urls = this.watchedState.content.feeds.reduce((acc, feed) => {
+                acc.push(feed.url);
+                return acc;
+              }, []);
+              console.log('urls', urls);
+              const promises = urls.map((url) => axios.get(`https://hexlet-allorigins.herokuapp.com/get?disableCache=true&url=${encodeURIComponent(url)}`)
+                .then((response) => response.data.contents)
+                .then((rss) => rssParser(rss))
+                .then((rssDocument) => updateStateContent(rssDocument)));
+
+              const promise = Promise.all(promises);
+              return promise.then(() => setTimeout());
+            };
+            if (this.watchedState.content.feedsCounter !== 0) {
+              this.watchedState.timeoutID = window.setTimeout(delayedUpdate, 5000);
+            }
+          };
+          setTimeout();
         });
     }
   }
@@ -109,17 +154,16 @@ class RssUrl {
 
 export default () => {
   i18next.init({
-    lng: 'en', // if you're using a language detector, do not define the lng option
+    lng: 'en',
     debug: true,
     resources,
   });
   const form = document.querySelector('form');
-
   form.addEventListener('submit', (e) => {
     e.preventDefault();
     const formData = new FormData(e.target);
     watchedState.url = formData.get('url');
-    const url = new RssUrl(formData.get('url'));
+    const url = new RssUrl(formData.get('url'), null, watchedState);
     url.validateName().validateExistense().getRequest();
   });
 

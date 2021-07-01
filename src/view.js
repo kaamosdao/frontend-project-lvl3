@@ -10,6 +10,7 @@ const state = {
   processState: 'filling', // filling / sending / failed / finished
   url: '',
   valid: null,
+  timeoutID: null,
   feedback: '',
   content: {
     feedsCounter: 0,
