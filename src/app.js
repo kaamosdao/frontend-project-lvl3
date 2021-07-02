@@ -59,9 +59,9 @@ const generateStateContent = (rssData) => {
 
 const updateStateContent = (rssData) => {
   const [feed, posts] = rssData;
-  const feedID = watchedState.content.feeds
+  const [feedID] = watchedState.content.feeds
     .filter((item) => item.title === feed.title)
-    .reduce((_acc, item) => item.id, 0);
+    .map((item) => item.id);
   const isNewPost = (item) => {
     const equalPosts = watchedState.content.posts.filter((post) => post.title === item.title);
     return equalPosts.length === 0;

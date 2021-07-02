@@ -2,6 +2,7 @@ export default {
   translation: {
     feeds: 'Feeds',
     posts: 'Posts',
+    preview: 'Preview',
     feedbackMessages: {
       default: '',
       loaded: 'RSS feed has successfully loaded!',
