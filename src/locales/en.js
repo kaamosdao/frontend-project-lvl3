@@ -11,6 +11,7 @@ export default {
         rssNotValid: 'URL does not contain a valid RSS feed',
         rssExist: 'RSS has already existed',
         url: 'url must be a valid URL',
+        emptyField: 'Should not be empty',
       },
     },
   },

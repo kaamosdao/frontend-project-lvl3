@@ -5,12 +5,13 @@ export default {
     preview: 'Просмотр',
     feedbackMessages: {
       default: '',
-      loaded: 'RSS успешно загружен!',
+      loaded: 'RSS успешно загружен',
       errors: {
-        network: 'Ошибка сети. Попробуйте позже.',
+        network: 'Ошибка сети',
         rssNotValid: 'Ресурс не содержит валидный RSS',
         rssExist: 'RSS уже существует',
         url: 'Ссылка должна быть валидным URL',
+        emptyField: 'Не должно быть пустым',
       },
     },
   },

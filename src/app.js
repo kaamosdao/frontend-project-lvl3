@@ -91,6 +91,11 @@ class RssUrl {
   }
 
   validateName() {
+    if (this.url.length === 0) {
+      this.watchedState.valid = false;
+      this.watchedState.feedback = 'feedbackMessages.errors.emptyField';
+      return new RssUrl(this.url, false, this.watchedState);
+    }
     if (schema.isValidSync({ url: this.url })) {
       this.watchedState.valid = true;
       return new RssUrl(this.url, true, this.watchedState);
@@ -153,7 +158,7 @@ class RssUrl {
 
 export default () => {
   i18next.init({
-    lng: 'en',
+    lng: 'ru',
     debug: true,
     resources,
   });
