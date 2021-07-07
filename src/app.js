@@ -3,6 +3,7 @@ import axios from 'axios';
 import i18next from 'i18next';
 import watchedState from './view';
 import resources from './locales';
+import 'bootstrap';
 
 const parser = new DOMParser();
 const rssParser = (rss) => {
