@@ -157,23 +157,23 @@ class RssUrl {
   }
 }
 
-export default () => {
-  i18next.init({
-    lng: 'ru',
-    debug: true,
-    resources,
-  });
-  const form = document.querySelector('form');
-  form.addEventListener('submit', (e) => {
-    e.preventDefault();
-    const formData = new FormData(e.target);
-    watchedState.url = formData.get('url');
-    const url = new RssUrl(formData.get('url'), null, watchedState);
-    url.validateName().validateExistense().getRequest();
-  });
+export default () => i18next.init({
+  lng: 'ru',
+  debug: true,
+  resources,
+})
+  .then(() => {
+    const form = document.querySelector('form');
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const formData = new FormData(e.target);
+      watchedState.url = formData.get('url');
+      const url = new RssUrl(formData.get('url'), null, watchedState);
+      url.validateName().validateExistense().getRequest();
+    });
 
-  form.addEventListener('input', (e) => {
-    e.preventDefault();
-    watchedState.processState = 'filling';
+    form.addEventListener('input', (e) => {
+      e.preventDefault();
+      watchedState.processState = 'filling';
+    });
   });
-};
