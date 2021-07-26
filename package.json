@@ -2,9 +2,8 @@
   "name": "@hexlet/code",
   "version": "1.0.0",
   "description": "RSS aggregator",
-  "main": "./src/index.js",
+  "main": "./src/init.js",
   "scripts": {
-    "test": "npx jest",
     "dev": "cross-env NODE_ENV=development webpack --mode development",
     "build": "cross-env NODE_ENV=production webpack --mode production",
     "serve": "cross-env NODE_ENV=development webpack serve --mode development --open"
