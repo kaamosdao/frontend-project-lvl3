@@ -1,12 +1,13 @@
-import * as yup from 'yup';
 import axios from 'axios';
 import i18next from 'i18next';
-import watchedState from './view';
+import validate from './validate.js';
+import view from './view.js';
 import resources from './locales';
 import 'bootstrap';
 
 const parser = new DOMParser();
-const rssParser = (rss) => {
+const rssParser = (rss, state) => {
+  const watchedState = state;
   const rssDocument = parser.parseFromString(rss, 'application/xml');
   if (rssDocument.querySelector('rss') === null) {
     return [null, null];
@@ -27,7 +28,8 @@ const rssParser = (rss) => {
   return [feed, posts];
 };
 
-const generateStateContent = (rssData) => {
+const generateStateContent = (rssData, state) => {
+  const watchedState = state;
   const [feed, posts] = rssData;
   if (feed === null && posts === null) {
     watchedState.processState = 'failed';
@@ -58,7 +60,8 @@ const generateStateContent = (rssData) => {
   }
 };
 
-const updateStateContent = (rssData) => {
+const updateStateContent = (rssData, state) => {
+  const watchedState = state;
   const [feed, posts] = rssData;
   const [feedID] = watchedState.content.feeds
     .filter((item) => item.title === feed.title)
@@ -80,100 +83,77 @@ const updateStateContent = (rssData) => {
   });
 };
 
-const schema = yup.object().shape({
-  url: yup.string().url(),
-});
+const setTimeout = (state) => {
+  const watchedState = state;
+  const delayedUpdate = () => {
+    const urls = watchedState.content.feeds.reduce((acc, feed) => {
+      acc.push(feed.url);
+      return acc;
+    }, []);
+    const promises = urls.map((adress) => axios.get(`https://hexlet-allorigins.herokuapp.com/get?disableCache=true&url=${encodeURIComponent(adress)}`)
+      .then((response) => response.data.contents)
+      .then((rss) => rssParser(rss, watchedState))
+      .then((rssDocument) => updateStateContent(rssDocument, watchedState)));
 
-class RssUrl {
-  constructor(url, validState = null, state) {
-    this.valid = validState;
-    this.url = url;
-    this.watchedState = state;
+    const promise = Promise.all(promises);
+    return promise.then(() => setTimeout(watchedState));
+  };
+  if (watchedState.content.feedsCounter !== 0) {
+    watchedState.timeoutID = window.setTimeout(delayedUpdate, 5000);
   }
+};
 
-  validateName() {
-    if (this.url.length === 0) {
-      this.watchedState.valid = false;
-      this.watchedState.feedback = 'feedbackMessages.errors.emptyField';
-      return new RssUrl(this.url, false, this.watchedState);
-    }
-    if (schema.isValidSync({ url: this.url })) {
-      this.watchedState.valid = true;
-      return new RssUrl(this.url, true, this.watchedState);
-    }
-    this.watchedState.valid = false;
-    this.watchedState.feedback = 'feedbackMessages.errors.url';
-    return new RssUrl(this.url, false, this.watchedState);
-  }
+const getRequest = (url, state) => {
+  const watchedState = state;
+  watchedState.processState = 'sending';
+  watchedState.feedback = 'feedbackMessages.default';
+  return axios.get(`https://hexlet-allorigins.herokuapp.com/get?disableCache=true&url=${encodeURIComponent(url)}`)
+    .then((response) => response.data.contents)
+    .then((rss) => rssParser(rss, watchedState))
+    .then((rssDocument) => generateStateContent(rssDocument, watchedState))
+    .catch(() => {
+      watchedState.processState = 'failed';
+      watchedState.valid = false;
+      watchedState.feedback = 'feedbackMessages.errors.network';
+    })
+    .then(() => setTimeout(watchedState));
+};
 
-  validateExistense() {
-    if (this.valid === false) {
-      return new RssUrl(this.url, false, this.watchedState);
-    }
-    const sameUrls = this.watchedState.content.feeds.filter((feed) => feed.url === this.url);
-    if (sameUrls.length !== 0) {
-      this.watchedState.valid = false;
-      this.watchedState.feedback = 'feedbackMessages.errors.rssExist';
-      return new RssUrl(this.url, false, this.watchedState);
-    }
-    return new RssUrl(this.url, true, this.watchedState);
-  }
+export default () => {
+  const state = {
+    processState: 'filling', // filling / sending / failed / finished
+    url: '',
+    valid: null,
+    timeoutID: null,
+    feedback: '',
+    content: {
+      feedsCounter: 0,
+      feeds: [], // [{ id, url, title, description }]
+      posts: [], // [{ id, feedId, title, link, description }]
+      postsState: {
+        readPostsId: new Set(),
+      },
+      modalPost: {}, // { id, feedId, title, link, description }
+    },
+  };
+  const watchedState = view(state, i18next);
 
-  getRequest() {
-    if (this.valid) {
-      this.watchedState.processState = 'sending';
-      this.watchedState.feedback = 'feedbackMessages.default';
-      axios.get(`https://hexlet-allorigins.herokuapp.com/get?disableCache=true&url=${encodeURIComponent(this.url)}`)
-        .then((response) => response.data.contents)
-        .then((rss) => rssParser(rss))
-        .then((rssDocument) => generateStateContent(rssDocument))
-        .catch(() => {
-          this.watchedState.processState = 'failed';
-          this.watchedState.valid = false;
-          this.watchedState.feedback = 'feedbackMessages.errors.network';
-        })
-        .then(() => {
-          const setTimeout = () => {
-            const delayedUpdate = () => {
-              const urls = this.watchedState.content.feeds.reduce((acc, feed) => {
-                acc.push(feed.url);
-                return acc;
-              }, []);
-              const promises = urls.map((url) => axios.get(`https://hexlet-allorigins.herokuapp.com/get?disableCache=true&url=${encodeURIComponent(url)}`)
-                .then((response) => response.data.contents)
-                .then((rss) => rssParser(rss))
-                .then((rssDocument) => updateStateContent(rssDocument)));
-
-              const promise = Promise.all(promises);
-              return promise.then(() => setTimeout());
-            };
-            if (this.watchedState.content.feedsCounter !== 0) {
-              this.watchedState.timeoutID = window.setTimeout(delayedUpdate, 5000);
-            }
-          };
-          setTimeout();
-        });
-    }
-  }
-}
-
-export default () => i18next.init({
-  lng: 'ru',
-  debug: true,
-  resources,
-})
-  .then(() => {
-    const form = document.querySelector('form');
-    form.addEventListener('submit', (e) => {
-      e.preventDefault();
-      const formData = new FormData(e.target);
-      watchedState.url = formData.get('url');
-      const url = new RssUrl(formData.get('url'), null, watchedState);
-      url.validateName().validateExistense().getRequest();
+  return i18next.init({
+    lng: 'ru',
+    debug: true,
+    resources,
+  })
+    .then(() => {
+      const form = document.querySelector('form');
+      form.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const formData = new FormData(e.target);
+        const url = formData.get('url');
+        watchedState.url = url;
+        const isValidUrl = validate(url, watchedState);
+        if (isValidUrl) {
+          getRequest(url, watchedState);
+        }
+      });
     });
-
-    form.addEventListener('input', (e) => {
-      e.preventDefault();
-      watchedState.processState = 'filling';
-    });
-  });
+};
