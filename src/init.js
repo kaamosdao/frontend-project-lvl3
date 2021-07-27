@@ -6,9 +6,8 @@ import view from './view.js';
 import resources from './locales';
 import 'bootstrap';
 
-const generateStateContent = (rssData, state) => {
+const generateStateContent = ([feed, posts], state) => {
   const watchedState = state;
-  const [feed, posts] = rssData;
   if (feed === null && posts === null) {
     watchedState.processState = 'failed';
     watchedState.valid = false;
@@ -61,17 +60,21 @@ const updateStateContent = (rssData, state) => {
   });
 };
 
+const makeRequestPromise = (url, watchedState, operation) => axios.get(`https://hexlet-allorigins.herokuapp.com/get?disableCache=true&url=${encodeURIComponent(url)}`)
+  .then((response) => response.data.contents)
+  .then((rss) => rssParser(rss, watchedState))
+  .then((rssDocument) => {
+    if (operation === 'generate') {
+      return generateStateContent(rssDocument, watchedState);
+    }
+    return updateStateContent(rssDocument, watchedState);
+  });
+
 const setTimeout = (state) => {
   const watchedState = state;
   const delayedUpdate = () => {
-    const urls = watchedState.content.feeds.reduce((acc, feed) => {
-      acc.push(feed.url);
-      return acc;
-    }, []);
-    const promises = urls.map((adress) => axios.get(`https://hexlet-allorigins.herokuapp.com/get?disableCache=true&url=${encodeURIComponent(adress)}`)
-      .then((response) => response.data.contents)
-      .then((rss) => rssParser(rss, watchedState))
-      .then((rssDocument) => updateStateContent(rssDocument, watchedState)));
+    const promises = watchedState.content.feeds
+      .map(({ url }) => makeRequestPromise(url, watchedState, 'update'));
 
     const promise = Promise.all(promises);
     return promise.then(() => setTimeout(watchedState));
@@ -81,14 +84,11 @@ const setTimeout = (state) => {
   }
 };
 
-const makeRequest = (url, state) => {
+const generateRequests = (url, state) => {
   const watchedState = state;
   watchedState.processState = 'sending';
   watchedState.feedback = 'feedbackMessages.default';
-  return axios.get(`https://hexlet-allorigins.herokuapp.com/get?disableCache=true&url=${encodeURIComponent(url)}`)
-    .then((response) => response.data.contents)
-    .then((rss) => rssParser(rss, watchedState))
-    .then((rssDocument) => generateStateContent(rssDocument, watchedState))
+  return makeRequestPromise(url, watchedState, 'generate')
     .catch(() => {
       watchedState.processState = 'failed';
       watchedState.valid = false;
@@ -136,7 +136,7 @@ export default () => {
         watchedState.url = url;
         const isValidUrl = validate(url, watchedState);
         if (isValidUrl) {
-          makeRequest(url, watchedState);
+          generateRequests(url, watchedState);
         }
       });
     });

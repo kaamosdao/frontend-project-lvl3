@@ -149,19 +149,23 @@ const processStateHandler = (processState, nodes) => {
 };
 
 const validStateHandler = (value, elements) => {
+  const addedClass = value === true ? 'text-success' : 'text-danger';
+  const removedClass = value === true ? 'text-danger' : 'text-success';
+  elements.feedbackContainer.classList.remove(removedClass);
+  elements.feedbackContainer.classList.add(addedClass);
   if (value === true) {
     elements.inputField.classList.remove('is-invalid');
-    elements.feedbackContainer.classList.remove('text-danger');
-    elements.feedbackContainer.classList.add('text-success');
   } else {
     elements.inputField.classList.add('is-invalid');
-    elements.feedbackContainer.classList.remove('text-success');
-    elements.feedbackContainer.classList.add('text-danger');
   }
 };
 
-const watchedState = (state, i18next, nodes) => onChange(state, (path, value) => {
+const feedbackStateHandler = (value, nodes, i18next) => {
   const elements = nodes;
+  elements.feedbackContainer.textContent = i18next.t(value);
+};
+
+const watchedState = (state, i18next, elements) => onChange(state, (path, value) => {
   switch (path) {
     case 'processState':
       processStateHandler(value, elements);
@@ -170,7 +174,7 @@ const watchedState = (state, i18next, nodes) => onChange(state, (path, value) =>
       validStateHandler(value, elements);
       break;
     case 'feedback':
-      elements.feedbackContainer.textContent = i18next.t(value);
+      feedbackStateHandler(value, elements, i18next);
       break;
     case 'content.feeds':
       feedsHandler(value, i18next);
@@ -185,8 +189,7 @@ const watchedState = (state, i18next, nodes) => onChange(state, (path, value) =>
     case 'content.modalPost':
       modalPostHandler(value);
       break;
-    default:
-      break;
+    default: break;
   }
 });
 
