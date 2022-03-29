@@ -1,22 +1,18 @@
-const parser = new DOMParser();
-
-const rssParser = (rss, state) => {
-  const watchedState = state;
+const rssParser = (rss) => {
+  const parser = new DOMParser();
   const rssDocument = parser.parseFromString(rss, 'application/xml');
   if (rssDocument.querySelector('rss') === null) {
-    return [null, null];
+    throw new Error('Parsing Error');
   }
-  const feed = {
-    url: watchedState.url,
+  return {
     title: rssDocument.querySelector('channel > title').textContent,
     description: rssDocument.querySelector('channel > description').textContent,
+    posts: [...rssDocument.querySelectorAll('item')].map((item) => ({
+      title: item.querySelector('title').textContent,
+      link: item.querySelector('link').textContent,
+      description: item.querySelector('description').textContent,
+    })),
   };
-  const posts = [...rssDocument.querySelectorAll('item')].reverse().map((item) => ({
-    title: item.querySelector('title').textContent,
-    link: item.querySelector('link').textContent,
-    description: item.querySelector('description').textContent,
-  }));
-  return [feed, posts];
 };
 
 export default rssParser;

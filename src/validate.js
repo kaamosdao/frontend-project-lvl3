@@ -1,4 +1,11 @@
 import * as yup from 'yup';
+import { setLocale } from 'yup';
+
+setLocale({
+  mixed: {
+    default: 'Not valid',
+  },
+});
 
 const schema = yup.object().shape({
   url: yup.string().url(),

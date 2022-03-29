@@ -1,25 +1,5 @@
 import onChange from 'on-change';
 
-const addEvent = (watcher, state) => {
-  const watchedState = watcher(state);
-  document
-    .querySelectorAll('[data-bs-toggle="modal"]')
-    .forEach((button) => {
-      button.addEventListener('click', (event) => {
-        const { id } = event.target.dataset;
-        const [post] = state.content.posts
-          .filter((item) => item.id === parseInt(id, 10));
-        watchedState.content.postsState.readPostsId.add(parseInt(id, 10));
-        watchedState.content.modalPost = post;
-      });
-    });
-  document.querySelectorAll('li > a').forEach((aEl) => {
-    aEl.addEventListener('click', (event) => {
-      const { id } = event.target.dataset;
-      watchedState.content.postsState.readPostsId.add(parseInt(id, 10));
-    });
-  });
-};
 const modalPostHandler = (value) => {
   const titleElement = document.querySelector('.modal-title');
   titleElement.textContent = value.title;
@@ -40,7 +20,7 @@ const readPostsIdHandler = (value) => {
 
 const createPostContentElements = (post, i18next, state) => {
   const buttonElement = document.createElement('button');
-  buttonElement.classList.add('btn', 'btn-outline-primary');
+  buttonElement.classList.add('btn', 'btn-outline-primary', 'post__button');
   buttonElement.setAttribute('type', 'button');
   buttonElement.dataset.id = post.id;
   buttonElement.dataset.bsToggle = 'modal';
@@ -48,9 +28,9 @@ const createPostContentElements = (post, i18next, state) => {
   buttonElement.textContent = i18next.t('preview');
   const aElement = document.createElement('a');
   if (state.content.postsState.readPostsId.has(post.id)) {
-    aElement.classList.add('link-secondary', 'fw-normal');
+    aElement.classList.add('post__link', 'link-secondary', 'fw-normal');
   } else {
-    aElement.classList.add('link-primary', 'fw-bold');
+    aElement.classList.add('post__link', 'link-primary', 'fw-bold');
   }
   aElement.setAttribute('href', post.link);
   aElement.setAttribute('target', '_blank');
@@ -108,6 +88,7 @@ const postsHandler = (value, i18next, state) => {
   value.forEach((post) => {
     const liElement = document.createElement('li');
     liElement.classList.add(
+      'post',
       'list-group-item',
       'border-0',
       'border-end-0',
@@ -122,7 +103,7 @@ const postsHandler = (value, i18next, state) => {
   });
 };
 
-const processStateHandler = (processState, nodes) => {
+const processStateHandler = (processState, nodes, i18next) => {
   const elements = nodes;
   switch (processState) {
     case 'failed':
@@ -136,10 +117,12 @@ const processStateHandler = (processState, nodes) => {
     case 'sending':
       elements.submitButton.disabled = true;
       elements.inputField.readOnly = true;
+      elements.feedbackContainer.textContent = i18next.t('feedbackMessages.default');
       break;
     case 'finished':
       elements.submitButton.disabled = false;
       elements.inputField.readOnly = false;
+      elements.feedbackContainer.textContent = i18next.t('feedbackMessages.loaded');
       elements.form.reset();
       elements.inputField.focus();
       break;
@@ -168,7 +151,7 @@ const feedbackStateHandler = (value, nodes, i18next) => {
 const watchedState = (state, i18next, elements) => onChange(state, (path, value) => {
   switch (path) {
     case 'processState':
-      processStateHandler(value, elements);
+      processStateHandler(value, elements, i18next);
       break;
     case 'valid':
       validStateHandler(value, elements);
@@ -181,7 +164,6 @@ const watchedState = (state, i18next, elements) => onChange(state, (path, value)
       break;
     case 'content.posts':
       postsHandler(value, i18next, state);
-      addEvent(watchedState, state);
       break;
     case 'content.postsState.readPostsId':
       readPostsIdHandler(value);
