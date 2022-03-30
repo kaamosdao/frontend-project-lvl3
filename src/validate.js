@@ -3,47 +3,32 @@ import { setLocale } from 'yup';
 
 setLocale({
   mixed: {
-    default: 'Not valid',
+    default: 'field_invalid',
+  },
+  string: {
+    url: () => ({ key: 'feedbackMessages.errors.url' }),
   },
 });
 
-const schema = yup.object().shape({
-  url: yup.string().url(),
-});
-
-const validateName = (url, state) => {
-  const watchedState = state;
-  if (url.length === 0) {
-    watchedState.valid = false;
-    watchedState.feedback = 'feedbackMessages.errors.emptyField';
-    return false;
+export default class Validator {
+  static validateSync(url, state) {
+    const schema = yup.object().shape({
+      url: yup.string()
+        .test(
+          'inputFieldIsEmpty',
+          { key: 'feedbackMessages.errors.emptyField' },
+          (inputValue) => inputValue.length !== 0,
+        )
+        .url()
+        .test(
+          'UrlIsAlreadyExist',
+          { key: 'feedbackMessages.errors.rssExist' },
+          (rssUrl) => {
+            const sameUrls = state.content.feeds.filter((feed) => feed.url === rssUrl);
+            return sameUrls.length === 0;
+          },
+        ),
+    });
+    schema.validateSync({ url });
   }
-  if (schema.isValidSync({ url })) {
-    watchedState.valid = true;
-    return true;
-  }
-  watchedState.valid = false;
-  watchedState.feedback = 'feedbackMessages.errors.url';
-  return false;
-};
-
-const validateExistense = (url, state) => {
-  const watchedState = state;
-  const sameUrls = watchedState.content.feeds.filter((feed) => feed.url === url);
-  if (sameUrls.length !== 0) {
-    watchedState.valid = false;
-    watchedState.feedback = 'feedbackMessages.errors.rssExist';
-    return false;
-  }
-  return true;
-};
-
-const validate = (url, watchedState) => {
-  const isValidName = validateName(url, watchedState);
-  if (isValidName) {
-    return validateExistense(url, watchedState);
-  }
-  return false;
-};
-
-export default validate;
+}

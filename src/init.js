@@ -1,6 +1,6 @@
 import axios from 'axios';
 import i18next from 'i18next';
-import validate from './validate.js';
+import Validator from './validate.js';
 import rssParser from './parser.js';
 import view from './view.js';
 import resources from './locales';
@@ -29,7 +29,6 @@ const generateStateContent = (rssData, url, state) => {
     });
   });
   watchedState.processState = 'finished';
-  // watchedState.feedback = 'feedbackMessages.loaded';
 };
 
 const updateStateContent = (rssData, state) => {
@@ -103,17 +102,12 @@ const setTimeout = (state) => {
 const generateRequests = (url, state) => {
   const watchedState = state;
   watchedState.processState = 'sending';
-  // watchedState.feedback = 'feedbackMessages.default';
   return makeRequestPromise(url, watchedState, 'generate')
     .then(() => addPostEvent(watchedState))
     .catch((error) => {
       watchedState.processState = 'failed';
       watchedState.valid = false;
-      if (error.message === 'Parsing Error') {
-        watchedState.feedback = 'feedbackMessages.errors.rssNotValid';
-        return;
-      }
-      watchedState.feedback = 'feedbackMessages.errors.network';
+      watchedState.error = { key: error.message.key };
     })
     .then(() => setTimeout(watchedState));
 };
@@ -122,7 +116,7 @@ export default () => {
   const state = {
     processState: 'filling', // filling / sending / failed / finished
     valid: null,
-    feedback: '',
+    error: {},
     content: {
       feedsCounter: 0,
       feeds: [], // [{ id, url, title, description }]
@@ -151,9 +145,13 @@ export default () => {
         e.preventDefault();
         const formData = new FormData(e.target);
         const url = formData.get('url');
-        const isValidUrl = validate(url, watchedState);
-        if (isValidUrl) {
+        try {
+          Validator.validateSync(url, watchedState);
           generateRequests(url, watchedState);
+        } catch (error) {
+          watchedState.processState = 'failed';
+          watchedState.valid = false;
+          watchedState.error = { key: error.message.key };
         }
       });
     });

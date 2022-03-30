@@ -143,9 +143,10 @@ const validStateHandler = (value, elements) => {
   }
 };
 
-const feedbackStateHandler = (value, nodes, i18next) => {
+const errorHandler = (value, nodes, i18next) => {
   const elements = nodes;
-  elements.feedbackContainer.textContent = i18next.t(value);
+  const { key } = value;
+  elements.feedbackContainer.textContent = i18next.t(key);
 };
 
 const watchedState = (state, i18next, elements) => onChange(state, (path, value) => {
@@ -156,8 +157,8 @@ const watchedState = (state, i18next, elements) => onChange(state, (path, value)
     case 'valid':
       validStateHandler(value, elements);
       break;
-    case 'feedback':
-      feedbackStateHandler(value, elements, i18next);
+    case 'error':
+      errorHandler(value, elements, i18next);
       break;
     case 'content.feeds':
       feedsHandler(value, i18next);
