@@ -73,7 +73,7 @@ const addPostEvent = (state) => {
   });
 };
 
-const makeRequestPromise = (url, watchedState, operation) => axios.get(`https://allorigins.hexlet.app/get?disableCache=true&url=${encodeURIComponent(url)}`)
+const getData = (url, watchedState, operation) => axios.get(`https://allorigins.hexlet.app/get?disableCache=true&url=${encodeURIComponent(url)}`)
   .then((response) => response.data.contents)
   .then((rss) => rssParser(rss, watchedState))
   .then((rssData) => {
@@ -83,33 +83,31 @@ const makeRequestPromise = (url, watchedState, operation) => axios.get(`https://
     return updateStateContent(rssData, watchedState);
   });
 
-const setTimeout = (state) => {
+const setUpdateTimeout = (state) => {
   const watchedState = state;
   const delayedUpdate = () => {
     const promises = watchedState.content.feeds
-      .map(({ url }) => makeRequestPromise(url, watchedState, 'update'));
+      .map(({ url }) => getData(url, watchedState, 'update'));
 
     const promise = Promise.all(promises);
     return promise
       .then(() => addPostEvent(watchedState))
-      .then(() => setTimeout(watchedState));
+      .then(() => setUpdateTimeout(watchedState));
   };
-  if (watchedState.content.feedsCounter !== 0) {
-    window.setTimeout(delayedUpdate, 5000);
-  }
+  window.setTimeout(delayedUpdate, 5000);
 };
 
 const generateRequests = (url, state) => {
   const watchedState = state;
   watchedState.processState = 'sending';
-  return makeRequestPromise(url, watchedState, 'generate')
+  return getData(url, watchedState, 'generate')
     .then(() => addPostEvent(watchedState))
     .catch((error) => {
       watchedState.processState = 'failed';
       watchedState.valid = false;
       watchedState.error = { key: error.message.key };
     })
-    .then(() => setTimeout(watchedState));
+    .then(() => setUpdateTimeout(watchedState));
 };
 
 export default () => {
