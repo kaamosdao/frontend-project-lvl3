@@ -97,15 +97,20 @@ const setUpdateTimeout = (state) => {
   window.setTimeout(delayedUpdate, 5000);
 };
 
+const setErrorState = (state, error) => {
+  const watchedState = state;
+  watchedState.processState = 'failed';
+  watchedState.valid = false;
+  watchedState.error = { key: error.message.key };
+};
+
 const generateRequests = (url, state) => {
   const watchedState = state;
   watchedState.processState = 'sending';
   return getData(url, watchedState, 'generate')
     .then(() => addPostEvent(watchedState))
     .catch((error) => {
-      watchedState.processState = 'failed';
-      watchedState.valid = false;
-      watchedState.error = { key: error.message.key };
+      setErrorState(watchedState, error);
     })
     .then(() => setUpdateTimeout(watchedState));
 };
@@ -147,9 +152,7 @@ export default () => {
           Validator.validateSync(url, watchedState);
           generateRequests(url, watchedState);
         } catch (error) {
-          watchedState.processState = 'failed';
-          watchedState.valid = false;
-          watchedState.error = { key: error.message.key };
+          setErrorState(watchedState, error);
         }
       });
     });
