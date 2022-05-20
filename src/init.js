@@ -101,7 +101,8 @@ const setErrorState = (state, error) => {
   const watchedState = state;
   watchedState.processState = 'failed';
   watchedState.valid = false;
-  watchedState.error = { key: error.message.key };
+  const errorKey = error.message === 'Network Error' ? 'feedbackMessages.errors.network' : error.message.key;
+  watchedState.error = { key: errorKey };
 };
 
 const generateRequests = (url, state) => {
