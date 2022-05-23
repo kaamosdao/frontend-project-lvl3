@@ -8,3 +8,7 @@ serve:
 	npx cross-env NODE_ENV=development webpack serve --mode development --open
 lint:
 	npx eslint .
+push:
+	git add .
+	git commit -m "$(ARGS)"
+	git push
