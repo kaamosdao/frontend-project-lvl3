@@ -2,6 +2,7 @@ import axios from 'axios';
 import i18next from 'i18next';
 import { setLocale } from 'yup';
 import validate from './validate.js';
+import yupLocale from './locales/yup.js';
 import rssParser from './parser.js';
 import view from './view.js';
 import resources from './locales';
@@ -150,22 +151,12 @@ export default () => {
     form: document.querySelector('form'),
   };
 
-  setLocale({
-    mixed: {
-      default: () => ({ key: 'feedbackMessages.errors.invalidField' }),
-      required: () => ({ key: 'feedbackMessages.errors.emptyField' }),
-      notOneOf: () => ({ key: 'feedbackMessages.errors.rssExist' }),
-    },
-    string: {
-      url: () => ({ key: 'feedbackMessages.errors.url' }),
-    },
-  });
-
   return i18next.init({
     lng: 'ru',
     debug: true,
     resources,
   })
+    .then(() => setLocale(yupLocale))
     .then(() => {
       const watchedState = view(state, i18next, elements);
       elements.form.addEventListener('submit', (e) => {
