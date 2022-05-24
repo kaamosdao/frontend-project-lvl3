@@ -65,7 +65,7 @@ const addPostEvent = (state) => {
         watchedState.content.modalPost = post;
       });
     });
-  document.querySelectorAll('.post__link').forEach((aEl) => {
+  document.querySelectorAll('.post a').forEach((aEl) => {
     aEl.addEventListener('click', (event) => {
       const { id } = event.target.dataset;
       watchedState.content.postsState.readPostsId.add(parseInt(id, 10));

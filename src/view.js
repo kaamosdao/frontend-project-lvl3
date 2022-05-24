@@ -28,9 +28,9 @@ const createPostContentElements = (post, i18next, state) => {
   buttonElement.textContent = i18next.t('preview');
   const aElement = document.createElement('a');
   if (state.content.postsState.readPostsId.has(post.id)) {
-    aElement.classList.add('post__link', 'link-secondary', 'fw-normal');
+    aElement.classList.add('link-secondary', 'fw-normal');
   } else {
-    aElement.classList.add('post__link', 'link-primary', 'fw-bold');
+    aElement.classList.add('fw-bold');
   }
   aElement.setAttribute('href', post.link);
   aElement.setAttribute('target', '_blank');
