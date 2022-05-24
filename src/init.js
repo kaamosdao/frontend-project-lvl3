@@ -97,11 +97,21 @@ const setUpdateTimeout = (state) => {
   window.setTimeout(delayedUpdate, 5000);
 };
 
+const getErrorKey = (error) => {
+  if (error.isParsingError) {
+    return 'feedbackMessages.errors.rssNotValid';
+  }
+  if (error.message === 'Network Error') {
+    return 'feedbackMessages.errors.network';
+  }
+  return error.message.key;
+};
+
 const setErrorState = (state, error) => {
   const watchedState = state;
   watchedState.processState = 'failed';
   watchedState.valid = false;
-  const errorKey = error.message === 'Network Error' ? 'feedbackMessages.errors.network' : error.message.key;
+  const errorKey = getErrorKey(error);
   watchedState.error = { key: errorKey };
 };
 
