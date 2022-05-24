@@ -3,6 +3,8 @@ export default {
     feeds: 'Фиды',
     posts: 'Посты',
     preview: 'Просмотр',
+    modalClose: 'Закрыть',
+    modalMore: 'Читать полностью',
     feedbackMessages: {
       default: '',
       loaded: 'RSS успешно загружен',

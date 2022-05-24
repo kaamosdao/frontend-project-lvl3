@@ -3,6 +3,8 @@ export default {
     feeds: 'Feeds',
     posts: 'Posts',
     preview: 'Preview',
+    modalClose: 'Close',
+    modalMore: 'Read more',
     feedbackMessages: {
       default: '',
       loaded: 'RSS feed has successfully loaded!',

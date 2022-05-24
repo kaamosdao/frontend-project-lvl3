@@ -1,11 +1,14 @@
 import onChange from 'on-change';
 
-const modalPostHandler = (value) => {
+const modalPostHandler = (value, i18next) => {
   const titleElement = document.querySelector('.modal-title');
   titleElement.textContent = value.title;
   const descriptionElement = document.querySelector('.modal-body > p');
   descriptionElement.textContent = value.description;
   const buttonElement = document.querySelector('.modal-footer > a');
+  const buttonCloseElement = document.querySelector('.modal-footer > button');
+  buttonCloseElement.textContent = i18next.t('modalClose');
+  buttonElement.textContent = i18next.t('modalMore');
   buttonElement.setAttribute('href', value.link);
   buttonElement.setAttribute('target', '_blank');
 };
@@ -170,7 +173,7 @@ const watchedState = (state, i18next, elements) => onChange(state, (path, value)
       readPostsIdHandler(value);
       break;
     case 'content.modalPost':
-      modalPostHandler(value);
+      modalPostHandler(value, i18next);
       break;
     default: break;
   }
