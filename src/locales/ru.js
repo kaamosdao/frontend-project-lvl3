@@ -14,6 +14,7 @@ export default {
         rssExist: 'RSS уже существует',
         url: 'Ссылка должна быть валидным URL',
         emptyField: 'Не должно быть пустым',
+        invalidField: 'Ошибка',
       },
     },
   },

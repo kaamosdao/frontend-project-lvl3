@@ -1,6 +1,7 @@
 import axios from 'axios';
 import i18next from 'i18next';
-import Validator from './validate.js';
+import { setLocale } from 'yup';
+import validate from './validate.js';
 import rssParser from './parser.js';
 import view from './view.js';
 import resources from './locales';
@@ -141,12 +142,24 @@ export default () => {
       modalPost: {}, // { id, feedId, title, link, description }
     },
   };
+
   const elements = {
     feedbackContainer: document.querySelector('.feedback'),
     submitButton: document.querySelector('.btn-submit'),
     inputField: document.querySelector('.form__input'),
     form: document.querySelector('form'),
   };
+
+  setLocale({
+    mixed: {
+      default: () => ({ key: 'feedbackMessages.errors.invalidField' }),
+      required: () => ({ key: 'feedbackMessages.errors.emptyField' }),
+      notOneOf: () => ({ key: 'feedbackMessages.errors.rssExist' }),
+    },
+    string: {
+      url: () => ({ key: 'feedbackMessages.errors.url' }),
+    },
+  });
 
   return i18next.init({
     lng: 'ru',
@@ -160,7 +173,7 @@ export default () => {
         const formData = new FormData(e.target);
         const url = formData.get('url');
         try {
-          Validator.validateSync(url, watchedState);
+          validate(url, watchedState);
           generateRequests(url, watchedState);
         } catch (error) {
           setErrorState(watchedState, error);

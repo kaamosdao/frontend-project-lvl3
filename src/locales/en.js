@@ -14,6 +14,7 @@ export default {
         rssExist: 'RSS has already existed',
         url: 'url must be a valid URL',
         emptyField: 'Should not be empty',
+        invalidField: 'Invalid',
       },
     },
   },
