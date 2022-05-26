@@ -1,7 +1,7 @@
 import axios from 'axios';
 import i18next from 'i18next';
 import { setLocale } from 'yup';
-import validate from './validate.js';
+import validateUrl from './validators.js';
 import yupLocale from './locales/yup.js';
 import rssParser from './parser.js';
 import view from './view.js';
@@ -75,7 +75,9 @@ const addPostEvent = (state) => {
   });
 };
 
-const getData = (url, watchedState, operation) => axios.get(`https://allorigins.hexlet.app/get?disableCache=true&url=${encodeURIComponent(url)}`)
+const addProxy = (url) => `https://allorigins.hexlet.app/get?disableCache=true&url=${encodeURIComponent(url)}`;
+
+const getData = (url, watchedState, operation) => axios.get(addProxy(url))
   .then((response) => response.data.contents)
   .then((rss) => rssParser(rss, watchedState))
   .then((rssData) => {
@@ -96,14 +98,15 @@ const setUpdateTimeout = (state) => {
       .then(() => addPostEvent(watchedState))
       .then(() => setUpdateTimeout(watchedState));
   };
-  window.setTimeout(delayedUpdate, 5000);
+  const delay = 5000;
+  window.setTimeout(delayedUpdate, delay);
 };
 
 const getErrorKey = (error) => {
   if (error.isParsingError) {
     return 'feedbackMessages.errors.rssNotValid';
   }
-  if (error.message === 'Network Error') {
+  if (axios.isAxiosError(error)) {
     return 'feedbackMessages.errors.network';
   }
   return error.message.key;
@@ -151,20 +154,22 @@ export default () => {
     form: document.querySelector('form'),
   };
 
+  setLocale(yupLocale);
+
   return i18next.init({
     lng: 'ru',
     debug: true,
     resources,
   })
-    .then(() => setLocale(yupLocale))
     .then(() => {
       const watchedState = view(state, i18next, elements);
       elements.form.addEventListener('submit', (e) => {
         e.preventDefault();
         const formData = new FormData(e.target);
         const url = formData.get('url');
+        const { feeds } = watchedState.content;
         try {
-          validate(url, watchedState);
+          validateUrl(url, feeds);
           generateRequests(url, watchedState);
         } catch (error) {
           setErrorState(watchedState, error);

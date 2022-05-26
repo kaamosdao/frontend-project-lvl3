@@ -1,7 +1,7 @@
 import * as yup from 'yup';
 
-const validate = (url, state) => {
-  const urls = state.content.feeds.map((feed) => feed.url);
+const validateUrl = (url, feeds) => {
+  const urls = feeds.map((feed) => feed.url);
   const schema = yup.object().shape({
     url: yup.string()
       .required()
@@ -12,4 +12,4 @@ const validate = (url, state) => {
   schema.validateSync({ url });
 };
 
-export default validate;
+export default validateUrl;
