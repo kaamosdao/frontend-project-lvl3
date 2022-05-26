@@ -107,27 +107,26 @@ const postsHandler = (value, i18next, state) => {
 };
 
 const processStateHandler = (processState, nodes, i18next) => {
-  const elements = nodes;
   switch (processState) {
     case 'failed':
-      elements.submitButton.disabled = false;
-      elements.inputField.readOnly = false;
+      nodes.submitButton.disabled = false;
+      nodes.inputField.readOnly = false;
       break;
     case 'filling':
-      elements.submitButton.disabled = false;
-      elements.inputField.readOnly = false;
+      nodes.submitButton.disabled = false;
+      nodes.inputField.readOnly = false;
       break;
     case 'sending':
-      elements.submitButton.disabled = true;
-      elements.inputField.readOnly = true;
-      elements.feedbackContainer.textContent = i18next.t('feedbackMessages.default');
+      nodes.submitButton.disabled = true;
+      nodes.inputField.readOnly = true;
+      nodes.feedbackContainer.textContent = i18next.t('feedbackMessages.default');
       break;
     case 'finished':
-      elements.submitButton.disabled = false;
-      elements.inputField.readOnly = false;
-      elements.feedbackContainer.textContent = i18next.t('feedbackMessages.loaded');
-      elements.form.reset();
-      elements.inputField.focus();
+      nodes.submitButton.disabled = false;
+      nodes.inputField.readOnly = false;
+      nodes.feedbackContainer.textContent = i18next.t('feedbackMessages.loaded');
+      nodes.form.reset();
+      nodes.inputField.focus();
       break;
     default:
       throw new Error(`Unknown state: ${processState}`);
@@ -147,9 +146,8 @@ const validStateHandler = (value, elements) => {
 };
 
 const errorHandler = (value, nodes, i18next) => {
-  const elements = nodes;
   const { key } = value;
-  elements.feedbackContainer.textContent = i18next.t(key);
+  nodes.feedbackContainer.textContent = i18next.t(key);
 };
 
 const watchedState = (state, i18next, elements) => onChange(state, (path, value) => {

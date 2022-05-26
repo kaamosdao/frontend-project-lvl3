@@ -95,7 +95,7 @@ const setUpdateTimeout = (state) => {
     const promise = Promise.all(promises);
     return promise
       .then(() => addPostEvent(state))
-      .then(() => setUpdateTimeout(state));
+      .finally(() => setUpdateTimeout(state));
   };
   const delay = 5000;
   window.setTimeout(delayedUpdate, delay);
@@ -125,7 +125,7 @@ const generateRequests = (url, state) => {
     .catch((error) => {
       setErrorState(state, error);
     })
-    .then(() => setUpdateTimeout(state));
+    .finally(() => setUpdateTimeout(state));
 };
 
 export default () => {
