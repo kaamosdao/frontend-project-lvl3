@@ -105,7 +105,7 @@ const getErrorKey = (error) => {
   if (error.isParsingError) {
     return 'feedbackMessages.errors.rssNotValid';
   }
-  if (axios.isAxiosError(error)) {
+  if (error.isAxiosError) {
     return 'feedbackMessages.errors.network';
   }
   return error.message.key;
